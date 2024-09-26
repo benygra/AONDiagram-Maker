@@ -114,6 +114,8 @@ public class AONDiagramClass implements AONDiagram {
         if (pending.size() > 0)
             throw new ExistsPendingNodesException();
 
+        this.addPredecessors(FINISH, (String[]) toEnd.keySet().toArray());
+
         ended = true;
     }
 }

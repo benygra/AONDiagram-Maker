@@ -42,6 +42,56 @@ public class AONNodeClass implements AONNode {
     }
 
     @Override
+    public int getEarlyStart() {
+        return earlyStart;
+    }
+
+    @Override
+    public int getEarlyFinish() {
+        return earlyFinish;
+    }
+
+    @Override
+    public int getLateStart() {
+        return lateStart;
+    }
+
+    @Override
+    public int getLateFinish() {
+        return lateFinish;
+    }
+
+    @Override
+    public int getSlack() {
+        return slack;
+    }
+
+    @Override
+    public void setEarlyStart(int earlyStart) {
+        this.earlyStart = earlyStart;
+    }
+
+    @Override
+    public void setEarlyFinish(int earlyFinish) {
+        this.earlyFinish = earlyFinish;
+    }
+
+    @Override
+    public void setLateStart(int lateStart) {
+        this.lateStart = lateStart;
+    }
+
+    @Override
+    public void setLateFinish(int lateFinish) {
+        this.lateFinish = lateFinish;
+    }
+
+    @Override
+    public void setSlack(int slack) {
+        this.slack = slack;
+    }
+
+    @Override
     public boolean hasPredecessors() {
         return predecessors.size() > 0;
     }
