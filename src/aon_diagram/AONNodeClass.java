@@ -5,8 +5,8 @@ import java.util.Map;
 
 public class AONNodeClass implements AONNode {
 
-    private final int duration;
     private final String name;
+    private final int duration;
 
     private int earlyStart;
     private int earlyFinish;
@@ -17,7 +17,7 @@ public class AONNodeClass implements AONNode {
     private Map<String, AONNode> parents;
     private Map<String, AONNode> children;
 
-    public AONNodeClass(int duration, String name) {
+    public AONNodeClass(String name, int duration) {
         this.duration = duration;
         this.name = name;
 
