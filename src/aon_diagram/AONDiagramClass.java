@@ -27,8 +27,13 @@ public class AONDiagramClass implements AONDiagram {
 
         this.ended = false;
 
-        nodes.put(START, new AONNodeClass(START, 0));
+        addStartNode();
         nodes.put(FINISH, new AONNodeClass(FINISH, 0));
+    }
+
+    private void addStartNode() {
+        AONNode start = nodes.put(START, new AONNodeClass(START, 0));
+        start.setAll(0, 0, 0, 0, 0);
     }
 
     @Override

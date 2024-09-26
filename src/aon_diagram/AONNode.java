@@ -45,6 +45,16 @@ public interface AONNode {
     int getSlack();
 
     /**
+     * Sets all the parameters given.
+     * @param earlyStart - the early start value.
+     * @param earlyFinish - the early finish value.
+     * @param lateStart - the late start value.
+     * @param lateFinish - the late finish value.
+     * @param slack - the slack value.
+     */
+    void setAll(int earlyStart, int earlyFinish, int lateStart, int lateFinish, int slack);
+
+    /**
      * Sets the early start to the given value.
      * @param earlyStart - the given early start value.
      */
