@@ -15,7 +15,7 @@ public class AONNodeClass implements AONNode {
     private int slack;
 
     private Map<String, AONNode> predecessors;
-    private Map<String, AONNode> children;
+    private Map<String, AONNode> successors;
 
     public AONNodeClass(String name, int duration) {
         this.duration = duration;
@@ -28,7 +28,7 @@ public class AONNodeClass implements AONNode {
         this.slack = 0;
 
         this.predecessors = new HashMap<>();
-        this.children = new HashMap<>();
+        this.successors = new HashMap<>();
     }
 
     @Override
@@ -47,8 +47,42 @@ public class AONNodeClass implements AONNode {
     }
 
     @Override
+    public boolean hasSuccessors() {
+        return successors.size() > 0;
+    }
+
+    @Override
     public void addPredecessors(AONNode[] pNodes) {
         for (AONNode p : pNodes)
             predecessors.put(p.getName(), p);
+    }
+
+    @Override
+    public void addSuccessor(AONNode n) {
+        successors.put(n.getName(), n);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (!(obj instanceof AONNodeClass))
+            return false;
+
+        AONNodeClass other = (AONNodeClass) obj;
+        if (name == null) {
+            if (other.getName() != null)
+                return false;
+        } else if (!name.equals(other.getName()))
+            return false;
+
+        return true;
     }
 }

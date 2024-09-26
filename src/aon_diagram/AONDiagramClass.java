@@ -1,12 +1,11 @@
 package aon_diagram;
 
-import aon_diagram.exceptions.AlreadyExistsNodeException;
-import aon_diagram.exceptions.AlreadyExistsPredecessorsException;
-import aon_diagram.exceptions.NonexistentNodeException;
-import aon_diagram.exceptions.NonexistentPredecessorsException;
+import aon_diagram.exceptions.*;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class AONDiagramClass implements AONDiagram {
 
@@ -14,20 +13,39 @@ public class AONDiagramClass implements AONDiagram {
     private static final String FINISH = "Finish";
 
     private Map<String, AONNode> nodes;
+    private Map<String, AONNode> toEnd;
+
+    private Set<AONNode> pending;
+
+    private boolean ended;
 
     public AONDiagramClass() {
         this.nodes = new HashMap<>();
+        this.toEnd = new HashMap<>();
+
+        this.pending = new HashSet<>();
+
+        this.ended = false;
 
         nodes.put(START, new AONNodeClass(START, 0));
         nodes.put(FINISH, new AONNodeClass(FINISH, 0));
     }
 
     @Override
-    public void addNode(String name, int duration) throws AlreadyExistsNodeException {
+    public boolean hasEnded() {
+        return ended;
+    }
+
+    @Override
+    public void addNode(String name, int duration) throws AlreadyExistsNodeException, EndedDiagramException {
+        if (ended)
+            throw new EndedDiagramException();
+
         if (nodes.containsKey(name))
             throw new AlreadyExistsNodeException();
 
-        nodes.put(name, new AONNodeClass(name, duration));
+        AONNode n = nodes.put(name, new AONNodeClass(name, duration));
+        pending.add(n);
     }
 
     /**
@@ -55,10 +73,26 @@ public class AONDiagramClass implements AONDiagram {
         return pNodes;
     }
 
+    /**
+     * Adds the given node <code>n</code> as successor to each node in <code>pNodes</code> array.
+     * Removes all those nodes with succesors from the pending ones.
+     * @param n - the given successor node.
+     * @param pNodes - the given array of nodes to add the successor node.
+     */
+    private void addSuccessors(AONNode n, AONNode[] pNodes) {
+        for (AONNode p : pNodes) {
+            p.addSuccessor(n);
+            toEnd.remove(p.getName());
+        }
+    }
+
     @Override
     public void addPredecessors(String nodeName, String[] predecessors)
             throws NonexistentNodeException, AlreadyExistsPredecessorsException,
-            NonexistentPredecessorsException {
+            NonexistentPredecessorsException, EndedDiagramException {
+
+        if (ended)
+            throw new EndedDiagramException();
 
         if (!nodes.containsKey(nodeName))
             throw new NonexistentNodeException();
@@ -67,6 +101,19 @@ public class AONDiagramClass implements AONDiagram {
         if (n.hasPredecessors())
             throw new AlreadyExistsPredecessorsException();
 
-        n.addPredecessors(convertNamesToANNodes(predecessors));
+        AONNode[] pNodes = convertNamesToANNodes(predecessors);
+        n.addPredecessors(pNodes);
+        addSuccessors(n, pNodes);
+
+        toEnd.put(nodeName, n);
+        pending.remove(n);
+    }
+
+    @Override
+    public void end() throws ExistsPendingNodesException {
+        if (pending.size() > 0)
+            throw new ExistsPendingNodesException();
+
+        ended = true;
     }
 }

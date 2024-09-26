@@ -21,8 +21,20 @@ public interface AONNode {
     boolean hasPredecessors();
 
     /**
+     * Evaluates if this node has successors.
+     * @return true if this node has successors, false otherwise.
+     */
+    boolean hasSuccessors();
+
+    /**
      * Adds the given predecessors to this node.
      * @param pNodes - the given predecessor nodes array.
      */
     void addPredecessors(AONNode[] pNodes);
+
+    /**
+     * Adds the given successor to this node.
+     * @param n - the given successor node.
+     */
+    void addSuccessor(AONNode n);
 }
