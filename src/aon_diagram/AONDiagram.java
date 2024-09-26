@@ -22,6 +22,7 @@ public interface AONDiagram {
 
     /**
      * Adds the following predecessors to the node with the given name, if successful.
+     * If it is given an empty array, it is intended as a starting task.
      * @param nodeName - the given node name.
      * @param predecessors - the given array of node names to be predecessors of the node with the given name.
      * @throws NonexistentNodeException - if there isn't a node in the diagram with that name.
