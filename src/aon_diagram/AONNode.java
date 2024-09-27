@@ -1,5 +1,7 @@
 package aon_diagram;
 
+import java.util.Iterator;
+
 public interface AONNode {
 
     /**
@@ -13,6 +15,18 @@ public interface AONNode {
      * @return the duration of the node.
      */
     int getDuration();
+
+    /**
+     * Returns true if this node is filled with forward way information, false otherwise.
+     * @return true if this node is filled with forward way information, false otherwise.
+     */
+    boolean isFilledForward();
+
+    /**
+     * Returns true if this node is filled with backwards way information, false otherwise.
+     * @return true if this node is filled with backwards way information, false otherwise.
+     */
+    boolean isFilledBackwards();
 
     /**
      * Returns the early start value.
@@ -91,6 +105,18 @@ public interface AONNode {
     boolean hasPredecessors();
 
     /**
+     * Returns the number of predecessors.
+     * @return the number of predecessors.
+     */
+    int getNumberOfPredecessors();
+
+    /**
+     * Returns the number of successors.
+     * @return the number of successors.
+     */
+    int getNumberOfSuccessors();
+
+    /**
      * Evaluates if this node has successors.
      * @return true if this node has successors, false otherwise.
      */
@@ -107,4 +133,30 @@ public interface AONNode {
      * @param n - the given successor node.
      */
     void addSuccessor(AONNode n);
+
+    /**
+     * Returns an iterator over all predecessor AONNode objects of this node.
+     * @return an iterator over all predecessor AONNode objects of this node.
+     */
+    Iterator<AONNode> getPredecessors();
+
+    /**
+     * Returns an iterator over all successor AONNode objects of this node.
+     * @return an iterator over all successor AONNode objects of this node.
+     */
+    Iterator<AONNode> getSuccessors();
+
+    /**
+     * Evaluates if all predecessors are filled forward.
+     * If it's true, updates the earlyStart variable of this node, because all theirs predecessors are filled forward.
+     * @return true if all predecessors are filled forward, false otherwise.
+     */
+    boolean allPredecessorsFilledForward();
+
+    /**
+     * Evaluates if all successors are filled backwards.
+     * If it's true, updates the lateFinish variable of this node, because all theirs predecessors are filled forward.
+     * @return true if all successors are filled backwards, false otherwise.
+     */
+    boolean allSuccessorsFilledBackwards();
 }

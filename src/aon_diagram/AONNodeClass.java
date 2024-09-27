@@ -1,6 +1,7 @@
 package aon_diagram;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class AONNodeClass implements AONNode {
@@ -8,10 +9,13 @@ public class AONNodeClass implements AONNode {
     private final String name;
     private final int duration;
 
-    private int earlyStart;
+    private boolean isFilledForward;
+    private boolean isFilledBackwards;
+
+    private int earlyStart; // this value is trash if !allPredecessorsFilledForward()
     private int earlyFinish;
     private int lateStart;
-    private int lateFinish;
+    private int lateFinish; // this value is trash if !allPredecessorsFilledForward()
     private int slack;
 
     private Map<String, AONNode> predecessors;
@@ -20,6 +24,9 @@ public class AONNodeClass implements AONNode {
     public AONNodeClass(String name, int duration) {
         this.duration = duration;
         this.name = name;
+
+        this.isFilledForward = false;
+        this.isFilledBackwards = false;
 
         this.earlyStart = 0;
         this.earlyFinish = 0;
@@ -39,6 +46,16 @@ public class AONNodeClass implements AONNode {
     @Override
     public int getDuration() {
         return duration;
+    }
+
+    @Override
+    public boolean isFilledForward() {
+        return isFilledForward;
+    }
+
+    @Override
+    public boolean isFilledBackwards() {
+        return isFilledBackwards;
     }
 
     @Override
@@ -67,23 +84,36 @@ public class AONNodeClass implements AONNode {
     }
 
     @Override
+    public void setAll(int earlyStart, int earlyFinish, int lateStart, int lateFinish, int slack) {
+        this.setEarlyStart(earlyStart);
+        this.setEarlyFinish(earlyFinish);
+        this.setLateStart(lateStart);
+        this.setLateFinish(lateFinish);
+        this.setSlack(slack);
+    }
+
+    @Override
     public void setEarlyStart(int earlyStart) {
         this.earlyStart = earlyStart;
+        this.isFilledForward = true;
     }
 
     @Override
     public void setEarlyFinish(int earlyFinish) {
         this.earlyFinish = earlyFinish;
+        this.isFilledForward = true;
     }
 
     @Override
     public void setLateStart(int lateStart) {
         this.lateStart = lateStart;
+        this.isFilledBackwards = true;
     }
 
     @Override
     public void setLateFinish(int lateFinish) {
         this.lateFinish = lateFinish;
+        this.isFilledBackwards = true;
     }
 
     @Override
@@ -93,12 +123,22 @@ public class AONNodeClass implements AONNode {
 
     @Override
     public boolean hasPredecessors() {
-        return predecessors.size() > 0;
+        return getNumberOfPredecessors() > 0;
+    }
+
+    @Override
+    public int getNumberOfPredecessors() {
+        return predecessors.size();
     }
 
     @Override
     public boolean hasSuccessors() {
-        return successors.size() > 0;
+        return getNumberOfSuccessors() > 0;
+    }
+
+    @Override
+    public int getNumberOfSuccessors() {
+        return successors.size();
     }
 
     @Override
@@ -110,6 +150,60 @@ public class AONNodeClass implements AONNode {
     @Override
     public void addSuccessor(AONNode n) {
         successors.put(n.getName(), n);
+    }
+
+    @Override
+    public Iterator<AONNode> getPredecessors() {
+        return predecessors.values().iterator();
+    }
+
+    @Override
+    public Iterator<AONNode> getSuccessors() {
+        return successors.values().iterator();
+    }
+
+    @Override
+    public boolean allPredecessorsFilledForward() {
+        Iterator<AONNode> it = getPredecessors();
+        boolean ret = true;
+        int max = Integer.MIN_VALUE;
+
+        while (ret && it.hasNext()) {
+            AONNode p = it.next();
+
+            ret = ret && p.isFilledForward();
+
+            int ef = p.getEarlyFinish();
+            if (ef > max)
+                max = ef;
+        }
+
+        if (ret)
+            setEarlyStart(max);
+
+        return ret;
+    }
+
+    @Override
+    public boolean allSuccessorsFilledBackwards() {
+        Iterator<AONNode> it = getSuccessors();
+        boolean ret = true;
+        int min = Integer.MAX_VALUE;
+
+        while (ret && it.hasNext()) {
+            AONNode s = it.next();
+
+            ret = ret && s.isFilledBackwards();
+
+            int ls = s.getLateStart();
+            if (ls < min)
+                min = ls;
+        }
+
+        if (ret)
+            setLateFinish(min);
+
+        return ret;
     }
 
     @Override

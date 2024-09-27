@@ -2,10 +2,7 @@ package aon_diagram;
 
 import aon_diagram.exceptions.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class AONDiagramClass implements AONDiagram {
 
@@ -121,6 +118,57 @@ public class AONDiagramClass implements AONDiagram {
 
         this.addPredecessors(FINISH, (String[]) toEnd.keySet().toArray());
 
+        Stack<AONNode> stack = new Stack<>();
+        forwardSetter(stack);
+        backwardsSetter(stack);
+
         ended = true;
+    }
+
+    private void pushAllInto(Stack<AONNode> stack, Iterator<AONNode> it) {
+        while (it.hasNext())
+            stack.push(it.next());
+    }
+
+    private void forwardSetter(Stack<AONNode> stack) {
+        pushAllInto(stack, nodes.get(START).getSuccessors());
+
+        AONNode n = stack.pop();
+        boolean allPredFF = n.allPredecessorsFilledForward();
+        while (!(n.equals(nodes.get(FINISH)) && allPredFF)) {
+            if (allPredFF) {
+                // early start is already set due to allPredecessorsFilledForward()
+                n.setEarlyFinish(n.getEarlyStart() + n.getDuration());
+
+                pushAllInto(stack, n.getSuccessors());
+            }
+
+            n = stack.pop();
+            allPredFF = n.allPredecessorsFilledForward();
+        }
+
+        n.setEarlyFinish(n.getEarlyStart() + 0); // because it's the finish node...
+        n.setLateStart(n.getEarlyStart());
+        n.setSlack(0);
+        n.setLateFinish(n.getEarlyFinish());
+    }
+
+    private void backwardsSetter(Stack<AONNode> stack) {
+        pushAllInto(stack, nodes.get(FINISH).getPredecessors());
+
+        AONNode n = stack.pop();
+        boolean allSucFB = n.allSuccessorsFilledBackwards();
+        while (!(n.equals(nodes.get(START)) && allSucFB)) {
+            if (allSucFB) {
+                // late finish is already set due to allSuccessorsFilledBackwards()
+                n.setLateStart(n.getLateFinish() - n.getDuration());
+                n.setSlack(n.getLateFinish() - n.getEarlyFinish());
+
+                pushAllInto(stack, n.getPredecessors());
+            }
+
+            n = stack.pop();
+            allSucFB = n.allSuccessorsFilledBackwards();
+        }
     }
 }
