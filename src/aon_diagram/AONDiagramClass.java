@@ -16,6 +16,8 @@ public class AONDiagramClass implements AONDiagram {
 
     private boolean ended;
 
+    private List<AONNode> criticalPath;
+
     public AONDiagramClass() {
         this.nodes = new HashMap<>();
         this.toEnd = new HashMap<>();
@@ -23,6 +25,8 @@ public class AONDiagramClass implements AONDiagram {
         this.pending = new HashSet<>();
 
         this.ended = false;
+
+        this.criticalPath = new ArrayList<>();
 
         addStartNode();
         nodes.put(FINISH, new AONNodeClass(FINISH, 0));
@@ -40,7 +44,7 @@ public class AONDiagramClass implements AONDiagram {
 
     @Override
     public void addNode(String name, int duration) throws AlreadyExistsNodeException, EndedDiagramException {
-        if (ended)
+        if (hasEnded())
             throw new EndedDiagramException();
 
         if (nodes.containsKey(name))
@@ -93,7 +97,7 @@ public class AONDiagramClass implements AONDiagram {
             throws NonexistentNodeException, AlreadyExistsPredecessorsException,
             NonexistentPredecessorsException, EndedDiagramException {
 
-        if (ended)
+        if (hasEnded())
             throw new EndedDiagramException();
 
         if (!nodes.containsKey(nodeName))
@@ -111,12 +115,25 @@ public class AONDiagramClass implements AONDiagram {
         pending.remove(n);
     }
 
+    // TODO
+    @Override
+    public Iterator<AONNode> getCriticalPath() throws NonEndedDiagramException {
+        if (!hasEnded())
+            throw new NonEndedDiagramException();
+
+        if (!criticalPath.isEmpty())
+            return criticalPath.iterator();
+
+        //nodes.get(START);
+        return null;
+    }
+
     @Override
     public void end() throws ExistsPendingNodesException {
-        if (pending.size() > 0)
+        if (!pending.isEmpty())
             throw new ExistsPendingNodesException();
 
-        this.addPredecessors(FINISH, (String[]) toEnd.keySet().toArray());
+        this.addPredecessors(FINISH, toEnd.keySet().toArray(new String[toEnd.size()]));
 
         Stack<AONNode> stack = new Stack<>();
         forwardSetter(stack);
@@ -147,7 +164,7 @@ public class AONDiagramClass implements AONDiagram {
             allPredFF = n.allPredecessorsFilledForward();
         }
 
-        n.setEarlyFinish(n.getEarlyStart() + 0); // because it's the finish node...
+        n.setEarlyFinish(n.getEarlyStart()); // because it's the finish node...
         n.setLateStart(n.getEarlyStart());
         n.setSlack(0);
         n.setLateFinish(n.getEarlyFinish());

@@ -2,6 +2,8 @@ package aon_diagram;
 
 import aon_diagram.exceptions.*;
 
+import java.util.Iterator;
+
 /**
  * Represents an AON Diagram for Project Management (tasks specifically).
  * It can be modified by interactions with the user.
@@ -37,6 +39,13 @@ public interface AONDiagram {
     void addPredecessors(String nodeName, String[] predecessors)
             throws NonexistentNodeException, AlreadyExistsPredecessorsException,
             NonexistentPredecessorsException, EndedDiagramException;
+
+    /**
+     * Returns an iterator over the critical path of the diagram, if it has already ended.
+     * @return an iterator over the critical path of the diagram, if it has already ended.
+     * @throws NonEndedDiagramException - if the diagram has not ended yet.
+     */
+    Iterator<AONNode> getCriticalPath() throws NonEndedDiagramException;
 
     /**
      * Ends the diagram.
