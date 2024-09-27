@@ -33,7 +33,8 @@ public class AONDiagramClass implements AONDiagram {
     }
 
     private void addStartNode() {
-        AONNode start = nodes.put(START, new AONNodeClass(START, 0));
+        nodes.put(START, new AONNodeClass(START, 0));
+        AONNode start = nodes.get(START);
         start.setAll(0, 0, 0, 0, 0);
     }
 
@@ -50,7 +51,8 @@ public class AONDiagramClass implements AONDiagram {
         if (nodes.containsKey(name))
             throw new AlreadyExistsNodeException();
 
-        AONNode n = nodes.put(name, new AONNodeClass(name, duration));
+        nodes.put(name, new AONNodeClass(name, duration));
+        AONNode n = nodes.get(name);
         pending.add(n);
     }
 
